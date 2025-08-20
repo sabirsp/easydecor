@@ -21,7 +21,7 @@ export default function Header() {
           {/* Logo - Increased size */}
           <div className="flex items-center">
             <img 
-              src={logo} 
+              src="/easy-decor-logo-update.png" 
               alt="EasyDecor Studio" 
               className="h-12 w-auto"
             />
