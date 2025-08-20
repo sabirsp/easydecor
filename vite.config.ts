@@ -5,14 +5,9 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  css: {
-    postcss: './postcss.config.js',
-  },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./"),
-      "@/components": path.resolve(__dirname, "./components"),
-      "@/styles": path.resolve(__dirname, "./styles"),
+      "@": path.resolve(__dirname, "."),
     },
   },
   build: {
@@ -22,8 +17,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          ui: ['lucide-react', '@radix-ui/react-slot']
+          'react-vendor': ['react', 'react-dom'],
+          'framer-motion': ['framer-motion'],
+          'lucide': ['lucide-react'],
+          'radix': ['@radix-ui/react-dialog', '@radix-ui/react-select', '@radix-ui/react-label']
         }
       }
     }
@@ -33,7 +30,7 @@ export default defineConfig({
     host: true
   },
   preview: {
-    port: 3000,
+    port: 4173,
     host: true
   }
 })
