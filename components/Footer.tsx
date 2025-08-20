@@ -1,5 +1,5 @@
 import { Heart, Facebook, Instagram, Twitter, Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
-import logo from 'figma:asset/aaa4d89a5e909c4e20dd929e667939eb1d3b4ae7.png';
+
 
 export default function Footer() {
   const quickLinks = [
@@ -35,7 +35,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <div className="mb-6">
               <img 
-                src={logo} 
+                src="/easy-decor-logo-update.png"
                 alt="EasyDecor Studio" 
                 className="h-10 w-auto filter brightness-0 invert"
               />
