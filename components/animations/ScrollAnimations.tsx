@@ -1,79 +1,94 @@
-import { motion } from 'motion/react';
-import { useInView } from 'react-intersection-observer';
+import { useEffect, useRef } from 'react';
+import { motion, useInView, useAnimation } from 'framer-motion';
 
 interface ScrollRevealProps {
   children: React.ReactNode;
   direction?: 'up' | 'down' | 'left' | 'right' | 'fade' | 'scale';
   delay?: number;
-  duration?: number;
-  distance?: number;
   threshold?: number;
-  triggerOnce?: boolean;
-  className?: string;
+  duration?: number;
+  once?: boolean;
 }
 
-export function ScrollReveal({
-  children,
-  direction = 'up',
-  delay = 0,
+export function ScrollReveal({ 
+  children, 
+  direction = 'up', 
+  delay = 0, 
+  threshold = 0.2,
   duration = 0.6,
-  distance = 50,
-  threshold = 0.1,
-  triggerOnce = true,
-  className = ''
+  once = true 
 }: ScrollRevealProps) {
-  const { ref, inView } = useInView({
-    threshold,
-    triggerOnce
+  const controls = useAnimation();
+  const ref = useRef(null);
+  const inView = useInView(ref, { 
+    amount: threshold, 
+    once 
   });
 
-  const getVariants = () => {
-    switch (direction) {
-      case 'up':
-        return {
-          hidden: { opacity: 0, y: distance },
-          visible: { opacity: 1, y: 0 }
-        };
-      case 'down':
-        return {
-          hidden: { opacity: 0, y: -distance },
-          visible: { opacity: 1, y: 0 }
-        };
-      case 'left':
-        return {
-          hidden: { opacity: 0, x: distance },
-          visible: { opacity: 1, x: 0 }
-        };
-      case 'right':
-        return {
-          hidden: { opacity: 0, x: -distance },
-          visible: { opacity: 1, x: 0 }
-        };
-      case 'scale':
-        return {
-          hidden: { opacity: 0, scale: 0.8 },
-          visible: { opacity: 1, scale: 1 }
-        };
-      case 'fade':
-      default:
-        return {
-          hidden: { opacity: 0 },
-          visible: { opacity: 1 }
-        };
+  useEffect(() => {
+    if (inView) {
+      controls.start('visible');
+    } else if (!once) {
+      controls.start('hidden');
     }
+  }, [controls, inView, once]);
+
+  const variants = {
+    hidden: {
+      opacity: 0,
+      y: direction === 'up' ? 60 : direction === 'down' ? -60 : 0,
+      x: direction === 'left' ? 60 : direction === 'right' ? -60 : 0,
+      scale: direction === 'scale' ? 0.8 : 1,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      x: 0,
+      scale: 1,
+      transition: {
+        duration,
+        delay,
+        ease: [0.25, 0.25, 0.25, 0.75], // Custom ease curve
+      },
+    },
   };
 
   return (
     <motion.div
       ref={ref}
-      className={className}
       initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={getVariants()}
+      animate={controls}
+      variants={variants}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Enhanced Fade In Up with stagger support
+interface FadeInUpProps {
+  children: React.ReactNode;
+  delay?: number;
+  duration?: number;
+  distance?: number;
+  stagger?: number;
+}
+
+export function FadeInUp({ 
+  children, 
+  delay = 0, 
+  duration = 0.6, 
+  distance = 40,
+  stagger = 0 
+}: FadeInUpProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: distance }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{
         duration,
-        delay,
-        ease: [0.25, 0.25, 0.25, 1]
+        delay: delay + stagger,
+        ease: [0.25, 0.25, 0.25, 0.75],
       }}
     >
       {children}
@@ -81,133 +96,96 @@ export function ScrollReveal({
   );
 }
 
+// Staggered children animation
 interface StaggerContainerProps {
   children: React.ReactNode;
   staggerDelay?: number;
-  className?: string;
+  initialDelay?: number;
 }
 
-export function StaggerContainer({
-  children,
-  staggerDelay = 0.1,
-  className = ''
+export function StaggerContainer({ 
+  children, 
+  staggerDelay = 0.1, 
+  initialDelay = 0 
 }: StaggerContainerProps) {
-  const { ref, inView } = useInView({
-    threshold: 0.1,
-    triggerOnce: true
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: {
+            delayChildren: initialDelay,
+            staggerChildren: staggerDelay,
+          },
+        },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Individual stagger items
+export function StaggerItem({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+          opacity: 1,
+          y: 0,
+          transition: {
+            duration: 0.6,
+            ease: [0.25, 0.25, 0.25, 0.75],
+          },
+        },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Simple scroll animation hook using framer-motion
+export function useScrollAnimation(threshold = 0.2) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { 
+    amount: threshold,
+    once: true 
   });
 
-  return (
-    <motion.div
-      ref={ref}
-      className={className}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={{
-        hidden: {},
-        visible: {
-          transition: {
-            staggerChildren: staggerDelay
-          }
-        }
-      }}
-    >
-      {children}
-    </motion.div>
-  );
+  return { ref, inView };
 }
 
-interface StaggerItemProps {
+// Parallax scroll effect
+interface ParallaxProps {
   children: React.ReactNode;
-  direction?: 'up' | 'down' | 'left' | 'right' | 'fade' | 'scale';
-  className?: string;
+  speed?: number;
 }
 
-export function StaggerItem({
-  children,
-  direction = 'up',
-  className = ''
-}: StaggerItemProps) {
-  const getVariants = () => {
-    const distance = 30;
-    switch (direction) {
-      case 'up':
-        return {
-          hidden: { opacity: 0, y: distance },
-          visible: { opacity: 1, y: 0 }
-        };
-      case 'down':
-        return {
-          hidden: { opacity: 0, y: -distance },
-          visible: { opacity: 1, y: 0 }
-        };
-      case 'left':
-        return {
-          hidden: { opacity: 0, x: distance },
-          visible: { opacity: 1, x: 0 }
-        };
-      case 'right':
-        return {
-          hidden: { opacity: 0, x: -distance },
-          visible: { opacity: 1, x: 0 }
-        };
-      case 'scale':
-        return {
-          hidden: { opacity: 0, scale: 0.9 },
-          visible: { opacity: 1, scale: 1 }
-        };
-      case 'fade':
-      default:
-        return {
-          hidden: { opacity: 0 },
-          visible: { opacity: 1 }
-        };
-    }
-  };
+export function Parallax({ children, speed = 0.5 }: ParallaxProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const handleScroll = () => {
+      const scrolled = window.pageYOffset;
+      const parallax = scrolled * speed;
+      element.style.transform = `translateY(${parallax}px)`;
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [speed]);
 
   return (
-    <motion.div
-      className={className}
-      variants={getVariants()}
-      transition={{
-        duration: 0.5,
-        ease: [0.25, 0.25, 0.25, 1]
-      }}
-    >
+    <div ref={ref} style={{ willChange: 'transform' }}>
       {children}
-    </motion.div>
-  );
-}
-
-// Pre-built animation components
-export function FadeInUp({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  return (
-    <ScrollReveal direction="up" delay={delay} className={className}>
-      {children}
-    </ScrollReveal>
-  );
-}
-
-export function FadeInLeft({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  return (
-    <ScrollReveal direction="left" delay={delay} className={className}>
-      {children}
-    </ScrollReveal>
-  );
-}
-
-export function FadeInRight({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  return (
-    <ScrollReveal direction="right" delay={delay} className={className}>
-      {children}
-    </ScrollReveal>
-  );
-}
-
-export function ScaleIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
-  return (
-    <ScrollReveal direction="scale" delay={delay} className={className}>
-      {children}
-    </ScrollReveal>
+    </div>
   );
 }
