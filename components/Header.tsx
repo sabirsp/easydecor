@@ -14,7 +14,12 @@ export default function Header() {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+    <header 
+      className="fixed top-0 left-0 right-0 z-50 border-b border-border backdrop-blur-md"
+      style={{ 
+        backgroundColor: 'rgba(254, 254, 249, 0.85)' // Explicit background with opacity
+      }}
+    >
       <div className="container-max section-padding">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -83,7 +88,10 @@ export default function Header() {
         {/* Mobile Navigation */}
         {isMenuOpen && (
           <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background border-t border-border">
+            <div 
+              className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-border"
+              style={{ backgroundColor: 'rgba(254, 254, 249, 0.95)' }}
+            >
               {navItems.map((item) => (
                 <a
                   key={item.name}
