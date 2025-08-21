@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
-
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -18,13 +17,29 @@ export default function Header() {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="container-max section-padding">
         <div className="flex items-center justify-between h-20">
-          {/* Logo - Increased size */}
+          {/* Logo */}
           <div className="flex items-center">
             <img 
               src="/easy-decor-logo-update.png" 
               alt="EasyDecor Studio" 
               className="h-12 w-auto"
+              onError={(e) => {
+                // Fallback to text logo if image fails to load
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
             />
+            {/* Fallback text logo - hidden by default */}
+            <div className="hidden flex-col">
+              <span className="text-2xl font-serif font-semibold text-charcoal leading-none tracking-tight">
+                easydecor
+              </span>
+              <span className="text-xs text-muted-gold font-medium tracking-widest uppercase">
+                STUDIO
+              </span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
