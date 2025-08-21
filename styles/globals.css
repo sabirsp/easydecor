@@ -91,6 +91,10 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Header specific variables for better cross-browser support */
+  --header-background: rgba(254, 254, 249, 0.85);
+  --header-mobile-background: rgba(254, 254, 249, 0.95);
 }
 
 .dark {
@@ -128,6 +132,10 @@
   --sidebar-accent-foreground: #fefef9;
   --sidebar-border: rgba(254, 254, 249, 0.1);
   --sidebar-ring: #c9a96e;
+  
+  /* Dark mode header backgrounds */
+  --header-background: rgba(26, 26, 26, 0.85);
+  --header-mobile-background: rgba(26, 26, 26, 0.95);
 }
 
 @layer base {
@@ -280,5 +288,24 @@ html {
 
   .border-charcoal {
     border-color: var(--color-charcoal);
+  }
+
+  /* Header specific utility classes for better reliability */
+  .header-bg {
+    background-color: var(--header-background);
+  }
+
+  .header-mobile-bg {
+    background-color: var(--header-mobile-background);
+  }
+
+  /* Fallback for browsers that don't support backdrop-blur */
+  @supports not (backdrop-filter: blur(12px)) {
+    .header-bg {
+      background-color: var(--background);
+    }
+    .header-mobile-bg {
+      background-color: var(--background);
+    }
   }
 }
